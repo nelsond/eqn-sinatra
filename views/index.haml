@@ -1,0 +1,67 @@
+!!! 5
+%html
+  %head
+    %title eqn.io
+
+    %meta{charset: "utf-8"}/
+    %meta{content: "width=device-width, initial-scale=1.0, minimal-ui", name: "viewport"}/
+
+    = css :app, media: "screen"
+    %link{rel: "stylesheet", href: "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.css"}
+
+    %script{src: "//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.js"}
+    %script{src: "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"}
+
+    = js :app
+    -#%script{src: "/js/lib/moment.js"}
+    -#%script{src: "/js/lib/jquery.cookie.js"}
+    -#%script{src: "/js/lib/handlebars-v1.1.0.js"}
+    -#%script{src: "/js/lib/showdown.js"}
+    -#%script{src: "/js/lib/ember.js"}
+    -#%script{src: "/js/lib/ember-data.js"}
+
+    -#%script{src: "/js/application.js"}
+    -#%script{src: "/js/helpers.js"}
+    -#%script{src: "/js/models/equation.js"}
+    -#%script{src: "/js/controllers/equation.js"}
+    -#%script{src: "/js/router.js"}
+
+  %body
+    %script{type: "text/x-handlebars"}
+      {{outlet}}
+
+    %script{type: "text/x-handlebars", data: {template_name: "equations/show"} }
+      %nav
+        #logo \eqn
+        %ul
+          %li
+            {{#link-to "equations.new" }}New{{/link-to}}
+          %li
+            <a {{action "forkEquation" }}>Fork</a>
+          %li.sep
+          %li
+            {{#link-to "equations.show" "help"}}Help{{/link-to}}
+
+      %h1 {{title}}
+      %section#equation
+        .info
+          {{formatTimestamp createdAt}}
+
+        .markdown {{renderEquation code}}
+
+    %script{type: "text/x-handlebars", data: {template_name: "equations/new"} }
+      %nav
+        #logo \eqn
+        %ul
+          %li.save
+            <a {{action "createEquation"}}>Save</a>
+          %li.sep
+          %li
+            {{#link-to "equations.show" "help"}}Help{{/link-to}}
+
+      %section#new
+        #editor
+          {{textarea value=code}}
+        #preview
+          .markdown {{renderEquation code}}
+
