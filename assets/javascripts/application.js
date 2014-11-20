@@ -10,9 +10,9 @@ Eqn.Router.reopen({
 
 Eqn.Router.map(function() {
   this.resource("equations", { path: "/" }, function () {
-    this.route("new", { path: "/" });
-    this.route("show", { path: "/e/:equation_id" });
     this.route("help");
+    this.route("new", { path: "/" });
+    this.route("show", { path: "/:equation_id" });
   });
 });
 

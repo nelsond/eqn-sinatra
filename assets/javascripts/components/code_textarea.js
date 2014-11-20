@@ -7,11 +7,11 @@ var autoComplete = function (e) {
     right = text.substring(caret, text.length);
 
   if (e.type == "keyup" && keyCode == 52) {
-    if (/[^\\]\$$/.test(left) && !/^\$/.test(right)) {
+    if (/[^\\]?\$$/.test(left) && !/^\$/.test(right)) {
       el.val(left + "$" + right);
       this.setSelectionRange(caret,caret);
     }
-    if (/[^\\]\$\$$/.test(left) && !/^\$\$/.test(right)) {
+    if (/[^\\]?\$\$$/.test(left) && !/^\$\$/.test(right)) {
       el.val(left + "$" + right);
       this.setSelectionRange(caret,caret);
     }
@@ -26,7 +26,7 @@ var autoComplete = function (e) {
 
 var selectionStartSupported = !Ember.none($("<textarea/>").prop("selectionStart"));
 
-Eqn.FocusTextareaComponent = Ember.TextArea.extend({
+Eqn.CodeTextareaComponent = Ember.TextArea.extend({
   becomeFocused: function() {
     this.$().focus();
 

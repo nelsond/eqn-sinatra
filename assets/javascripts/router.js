@@ -1,10 +1,6 @@
-equationNotFound = function(reason) {
-  console.log("Equation not found", $.parseJSON(reason.responseText));
-};
-
 Eqn.EquationsShowRoute = Ember.Route.extend({
   model: function(params) {
-    return this.store.find("equation", params.equation_id).catch(equationNotFound);
+    return this.store.find("equation", params.equation_id);
   }
 });
 

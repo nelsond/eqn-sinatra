@@ -1,7 +1,7 @@
 !!! 5
 %html
   %head
-    %title eqn.io
+    %title \eqn | create and share equations easily
 
     %meta{charset: "utf-8"}/
     %meta{content: "width=device-width, initial-scale=1.0, minimal-ui", name: "viewport"}/
@@ -24,9 +24,11 @@
         %span
         %span
 
-    %script{type: "text/x-handlebars", data: {template_name: "error"} }
+    %script{type: "text/x-handlebars", data: {template_name: "equations/error"} }
       %section#error
-        %h1 Error
+        %h1 Oops... an error occured.
+
+        {{#link-to "equations.new"}}Create a new equation{{/link-to}}
 
     %script{type: "text/x-handlebars", data: {template_name: "equations/help"} }
       %nav
@@ -37,8 +39,6 @@
             {{#if continueIsAvailable}}Continue{{/if}}
             {{#unless continueIsAvailable}}New{{/unless}}
             {{/link-to}}
-          %li
-            <a {{action "forkEquation"}}>Fork</a>
 
       %h1 {{title}}
       %section#equation
@@ -60,7 +60,6 @@
           %li
             {{#link-to "equations.help"}}Help{{/link-to}}
 
-      %h1 {{title}}
       %section#equation
         .info {{formatTimestamp createdAt}}
         .markdown {{renderEquation code}}
@@ -77,7 +76,7 @@
 
       %section#new
         #editor
-          {{focus-textarea value=code disabled=isLoading}}
+          {{code-textarea value=code disabled=isLoading}}
         #preview
           .markdown {{renderEquation code}}
 
