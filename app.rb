@@ -34,44 +34,38 @@ class Eqn < Sinatra::Base
   end
   # :nocov:
 
-  assets do
-    serve "/js", from: "assets/javascripts"
-    serve "/css", from: "assets/stylesheets"
-    serve "/images", from: "assets/images"
+  assets do |a|
+    break if test?
 
-    js :app, [
-      "/js/lib/moment.js",
-      "/js/lib/jquery.cookie.js",
-      "/js/lib/handlebars-v1.1.0.js",
+    a.serve "/js", from: "assets/javascripts"
+    a.serve "/css", from: "assets/stylesheets"
+    a.serve "/images", from: "assets/images"
+
+    a.js :app, [
       "/js/lib/showdown.js",
+      "/js/lib/moment.js",
+      "/js/lib/handlebars-v1.1.0.js",
       "/js/lib/ember.js",
       "/js/lib/ember-data.js",
       "/js/application.js",
+      "/js/components/*.js",
       "/js/helpers.js",
       "/js/models/*.js",
       "/js/controllers/*.js",
       "/js/router.js"
     ]
 
-    css :app, [ "/css/application.css" ]
+    a.css :app, [ "/css/application.css" ]
 
-    js_compression :uglify
-    css_compression :sass
+    a.js_compression :uglify
+    a.css_compression :sass
 
-    prebuild true
-  end
-
-
-  configure do
-    equation = Equation.new "code" => File.read("help.md")
-    equation.id = "help"
-    equation.save
+    a.prebuild true
   end
 
   helpers do
     def underscore(h)
       h.keys.each do |k|
-        puts k.underscore
         next if k.underscore == k
 
         h[k.underscore] = h[k]
@@ -108,19 +102,7 @@ class Eqn < Sinatra::Base
         end
       end
 
-      patch "/:id/?" do
-        equation = Equation.update params[:id], underscore(params[:equation])
-
-        if equation
-          status 200
-        else
-          status 422
-          json msg: "Invalid data."
-        end
-      end
-
     end
-
   end
 
   get "*" do

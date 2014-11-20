@@ -13,40 +13,56 @@
     %script{src: "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"}
 
     = js :app
-    -#%script{src: "/js/lib/moment.js"}
-    -#%script{src: "/js/lib/jquery.cookie.js"}
-    -#%script{src: "/js/lib/handlebars-v1.1.0.js"}
-    -#%script{src: "/js/lib/showdown.js"}
-    -#%script{src: "/js/lib/ember.js"}
-    -#%script{src: "/js/lib/ember-data.js"}
-
-    -#%script{src: "/js/application.js"}
-    -#%script{src: "/js/helpers.js"}
-    -#%script{src: "/js/models/equation.js"}
-    -#%script{src: "/js/controllers/equation.js"}
-    -#%script{src: "/js/router.js"}
 
   %body
     %script{type: "text/x-handlebars"}
       {{outlet}}
+
+    %script{type: "text/x-handlebars", data: {template_name: "loading"} }
+      .loading-indicator
+        %span
+        %span
+        %span
+
+    %script{type: "text/x-handlebars", data: {template_name: "error"} }
+      %section#error
+        %h1 Error
+
+    %script{type: "text/x-handlebars", data: {template_name: "equations/help"} }
+      %nav
+        #logo \eqn
+        %ul
+          %li
+            {{#link-to "equations.new" }}
+            {{#if continueIsAvailable}}Continue{{/if}}
+            {{#unless continueIsAvailable}}New{{/unless}}
+            {{/link-to}}
+          %li
+            <a {{action "forkEquation"}}>Fork</a>
+
+      %h1 {{title}}
+      %section#equation
+        .info \eqn help
+        .markdown {{renderEquation code}}
 
     %script{type: "text/x-handlebars", data: {template_name: "equations/show"} }
       %nav
         #logo \eqn
         %ul
           %li
-            {{#link-to "equations.new" }}New{{/link-to}}
+            {{#link-to "equations.new" }}
+            {{#if continueIsAvailable}}Continue{{/if}}
+            {{#unless continueIsAvailable}}New{{/unless}}
+            {{/link-to}}
           %li
-            <a {{action "forkEquation" }}>Fork</a>
+            <a {{action "forkEquation"}}>Fork</a>
           %li.sep
           %li
-            {{#link-to "equations.show" "help"}}Help{{/link-to}}
+            {{#link-to "equations.help"}}Help{{/link-to}}
 
       %h1 {{title}}
       %section#equation
-        .info
-          {{formatTimestamp createdAt}}
-
+        .info {{formatTimestamp createdAt}}
         .markdown {{renderEquation code}}
 
     %script{type: "text/x-handlebars", data: {template_name: "equations/new"} }
@@ -54,14 +70,22 @@
         #logo \eqn
         %ul
           %li.save
-            <a {{action "createEquation"}}>Save</a>
+            {{loading-button isVisible=isValid isLoading=isLoading buttonText="Save" action="createEquation"}}
           %li.sep
           %li
-            {{#link-to "equations.show" "help"}}Help{{/link-to}}
+            {{#link-to "equations.help"}}Help{{/link-to}}
 
       %section#new
         #editor
-          {{textarea value=code}}
+          {{focus-textarea value=code disabled=isLoading}}
         #preview
           .markdown {{renderEquation code}}
 
+    %script{type: "text/x-handlebars", data: {template_name: "components/loading-button"} }
+      <a {{bind-attr class="isVisible:visible :loading-button"}} {{action "showLoading"}}>
+      {{#if isLoading}}
+      <span></span><span></span><span></span>
+      {{else}}
+      {{buttonText}}
+      {{/if}}
+      </a>

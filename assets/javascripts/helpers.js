@@ -1,40 +1,57 @@
-var showdown = new Showdown.converter();
+// (\$\$|\$)([^$\\]*(?:\\.[^$\\]*)*)(\$\$|\$)
 
-var mathReplacer = function(prefix) {
-  prefix = Ember.none(prefix) ? "" : prefix;
+var math = function(converter) {
+  return [{
+    type: "lang",
+    filter: function(source) {
+      source = source.replace("\\~D", "$");
+      return source.replace(/(~D~D|~D)((?:(?!~D).)*)(~D~D|~D)/gm, function (match, preType, tex, postType) {
+        if(tex.length < 1) { return ""; }
 
-  return function() {
-    if (arguments.length < 2) { return ""; }
+        var math,
+            isDisplayStyle = (preType == "~D~D" && postType == "~D~D");
+        try {
+          if (isDisplayStyle) {
+            math = katex.renderToString("\\displaystyle { " + tex + " }");
+          } else {
+            math = katex.renderToString(tex);
+          }
+        }
+        catch (err) {
+          math = "<span class=\"katex-error\">" + err.message + "</span>";
+        }
 
-    var match = arguments[0],
-        math = arguments[1];
+        if (isDisplayStyle) { math = "<span class=\"katex-displaystyle\">" + math + "</span>"; }
 
-    // replace escaped characters
-    math = math.replace(/\\\\/gm, "\\");
-    math = math.replace(/\\\$/gm, "$");
+        if (preType == "~D~D" && postType == "~D") { math = "~D" + math; }
+        if (preType == "~D" && postType == "~D~D") { math = math + "~D"; }
 
-    var mathHtml;
-    try {
-      mathHtml = katex.renderToString(prefix + math);
+        return math;
+      });
     }
-    catch (err) {
-      mathHtml = "<span class=\"katex-error\">" + err.message + "</span>";
-    }
+  }];
+}
 
-    return " " + mathHtml + " ";
-  }
-};
+var inlineCode = function(converter) {
+  return [{
+    type: "lang",
+    filter: function(source) {
+      return source.replace(/`((?:[^`\\]|\\.)*)`/, function(match, code) {
+        return "<code>" + code + "</code>";
+      });
+    }
+  }];
+}
+
+var showdown = new Showdown.converter({
+  extensions: [math, inlineCode]
+});
 
 Ember.Handlebars.helper("renderEquation", function(code) {
-  var escaped = Handlebars.Utils.escapeExpression(code),
-      inlineMathReplacer = mathReplacer,
-      displayStyleMathReplacer = mathReplacer("\\displaystyle ");
+  //var escaped = Handlebars.Utils.escapeExpression(code);
+  var html = showdown.makeHtml(code);
 
-  escaped = escaped.replace(/\$\$([^$\\]*(?:\\.[^$\\]*)*)\$\$/gim, displayStyleMathReplacer);
-  escaped = escaped.replace(/\$([^$\\]*(?:\\.[^$\\]*)*)\$/gim, inlineMathReplacer);
-  escaped = showdown.makeHtml(escaped.replace(/\\\$/gm, "$"));
-
-  return new Ember.Handlebars.SafeString(escaped);
+  return new Ember.Handlebars.SafeString(html);
 });
 
 Ember.Handlebars.helper("formatTimestamp", function(ts) {

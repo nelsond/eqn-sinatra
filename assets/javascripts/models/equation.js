@@ -1,7 +1,6 @@
 var attr = DS.attr;
 
 Eqn.Equation = DS.Model.extend({
-  title: attr("string"),
   code: attr("string"),
   createdAt: attr("number", {
     defaultValue: function() { return Math.floor( (new Date()).getTime()/1000 ); }

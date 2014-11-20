@@ -5,20 +5,9 @@ describe Equation do
 
   context "with a saved Equation" do
     before(:each) do
-      @equation = Equation.new "title" => "Test equation", "code" => "$$Test Equation$$"
+      @equation = Equation.new "code" => "$$Test Equation$$"
       @equation.save
     end
-
-    #describe ".all" do
-      #it "should return all Equations" do
-        #4.times do |i|
-          #e = Equation.new "title" => "Test equation #{i}", "code" => "$$Test Equation$$"
-          #e.save
-        #end
-
-        #expect(Equation.all).to eq(5)
-      #end
-    #end
 
     describe ".find" do
       it "should find the Equation" do
@@ -42,23 +31,11 @@ describe Equation do
         expect(equation_deleted).to eq(false)
       end
     end
-
-    describe ".update" do
-      it "should update the Equation" do
-        new_title = "Updated Title"
-        equation_updated = Equation.update(@equation.id, "title" => new_title)
-
-        updated_equation = Equation.find(@equation.id)
-
-        expect(equation_updated).to eq(true)
-        expect(updated_equation["title"]).to eq(new_title)
-      end
-    end
   end
 
   describe "#save" do
     it "should save a new Equation" do
-      equation = Equation.new "title" => "Test equation", "code" => "$$Test Equation$$"
+      equation = Equation.new "code" => "$$Test Equation$$"
 
       expect(equation.save).to eq(true)
       expect(equation.id).not_to eq(nil)

@@ -3,8 +3,7 @@ require "digest"
 class Equation
   attr_accessor :id, :values
 
-  @@default_values = { "title"      => "",
-                       "code"       => "",
+  @@default_values = { "code"       => "",
                        "created_at" => 0 }
 
   def initialize(vals={})
@@ -29,10 +28,8 @@ class Equation
   def save
     return false unless values_valid?
 
-    unless @id
-      pk = $redis.incr "equations:pk"
-      @id = Digest::MD5.hexdigest(pk.to_s).to_i(16).to_s(36)[0..10]
-    end
+    @id = Digest::MD5.hexdigest(@values["code"]).to_i(16).to_s(36)[-10..-1]
+    @values["code"].strip!
 
     $redis.pipelined do
       $redis.sadd "equations", @id
@@ -70,16 +67,6 @@ class Equation
     end
   end
 
-  def self.update(id, vals={})
-    vals = {} unless vals.is_a? Hash
-
-    equation = Equation.find(id)
-    return nil unless equation
-
-    vals.each{ |k,v| equation[k] = v }
-    equation.save
-  end
-
   private
   def values_valid?
     valid = true
@@ -91,8 +78,7 @@ class Equation
       end
     end
 
-    # valid = false unless @values["title"].is_a?(String) && @values["title"].length > 0
-    # valid = false unless @values["code"].is_a?(String)  && @values["code"].length  > 0
+    valid = false unless @values["code"].is_a?(String)  && @values["code"].length  > 0
 
     valid
   end
