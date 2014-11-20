@@ -14,6 +14,13 @@ describe Eqn do
     @equation.save
   end
 
+  describe "GET /" do
+    it "returns 200" do
+      get "/"
+      expect(last_response).to be_ok
+    end
+  end
+
   describe "GET /api/v1/equations/:id" do
     it "returns 404 if equation does not exist" do
       get "/api/v1/equations/1"

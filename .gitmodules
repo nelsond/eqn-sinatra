@@ -1,0 +1,3 @@
+[submodule "eqn-ember"]
+	path = eqn-ember
+	url = https://github.com/nelsond/eqn-ember

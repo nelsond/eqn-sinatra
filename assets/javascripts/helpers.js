@@ -1,10 +1,8 @@
-// (\$\$|\$)([^$\\]*(?:\\.[^$\\]*)*)(\$\$|\$)
-
 var math = function(converter) {
   return [{
     type: "lang",
     filter: function(source) {
-      source = source.replace("\\~D", "$");
+      source = source.replace(/\\~D/gm, "$");
       return source.replace(/(~D~D|~D)((?:(?!~D).)*)(~D~D|~D)/gm, function (match, preType, tex, postType) {
         if(tex.length < 1) { return ""; }
 
@@ -30,7 +28,7 @@ var math = function(converter) {
       });
     }
   }];
-}
+};
 
 var inlineCode = function(converter) {
   return [{
@@ -41,14 +39,13 @@ var inlineCode = function(converter) {
       });
     }
   }];
-}
+};
 
 var showdown = new Showdown.converter({
   extensions: [math, inlineCode]
 });
 
 Ember.Handlebars.helper("renderEquation", function(code) {
-  //var escaped = Handlebars.Utils.escapeExpression(code);
   var html = showdown.makeHtml(code);
 
   return new Ember.Handlebars.SafeString(html);
@@ -58,3 +55,6 @@ Ember.Handlebars.helper("formatTimestamp", function(ts) {
   return moment.unix(ts).calendar();
 });
 
+Ember.Handlebars.helper("shortenUrl", function(url) {
+  return url.replace(/^https?:\/\/[^/]*/, "");
+});

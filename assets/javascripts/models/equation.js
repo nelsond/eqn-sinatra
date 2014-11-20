@@ -1,5 +1,10 @@
-var attr = DS.attr;
+Eqn.ApplicationSerializer = DS.RESTSerializer.extend({
+  keyForAttribute: function(attr) {
+    return Ember.String.underscore(attr);
+  }
+});
 
+var attr = DS.attr;
 Eqn.Equation = DS.Model.extend({
   code: attr("string"),
   createdAt: attr("number", {
@@ -21,4 +26,3 @@ Eqn.Equation.FIXTURES = [
     created_at: Math.floor( (new Date()).getTime()/1000 )
   }
 ];
-

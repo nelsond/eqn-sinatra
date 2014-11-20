@@ -1,8 +1,5 @@
-# Ignore bundler config
+# bundler config
 /.bundle
-
-# tmp directory
-/tmp
 
 # foreman environment variables
 .env
@@ -10,6 +7,5 @@
 # test coverage report from simplecov
 coverage
 
-# general local files
+# ruby version file (see Gemfile instead)
 .ruby-version
-Procfile.local

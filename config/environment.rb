@@ -10,7 +10,6 @@ Bundler.require
 unless ENV["RACK_ENV"] == "test"
   require "active_support/logger"
   $logger = ActiveSupport::Logger.new(STDOUT)
-
   $stdout.sync = true
 end
 

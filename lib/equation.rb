@@ -1,4 +1,4 @@
-require "digest"
+require "zlib"
 
 class Equation
   attr_accessor :id, :values
@@ -6,19 +6,13 @@ class Equation
   @@default_values = { "code"       => "",
                        "created_at" => 0 }
 
+  ID_BASE = ["A".."Z", "a".."z", 0..9].map(&:to_a).flatten
+
   def initialize(vals={})
     @id = nil
 
     @values = @@default_values.merge(vals || {})
     @values["created_at"] = Time.now.to_i
-  end
-
-  def []=(k,v)
-    @values[k] = v
-  end
-
-  def [](k)
-    @values[k]
   end
 
   def ==(other)
@@ -28,12 +22,17 @@ class Equation
   def save
     return false unless values_valid?
 
-    @id = Digest::MD5.hexdigest(@values["code"]).to_i(16).to_s(36)[-10..-1]
-    @values["code"].strip!
+    loop do
+      @id = (0..3).map{ self.class::ID_BASE.sample }.join
+      break unless self.class.exists? @id
+    end
+
+    json = JSON.dump(@values)
 
     $redis.pipelined do
       $redis.sadd "equations", @id
-      $redis.set  "equations:#{@id}", JSON.dump(@values)
+      $redis.incr "equations:count"
+      $redis.set  @id, Zlib::Deflate.deflate(json)
     end
 
     true
@@ -45,21 +44,26 @@ class Equation
 
   def self.delete(id)
     if $redis.srem "equations", id
-      $redis.del "equations:#{id}"
+      $redis.del id
+      $redis.decr "equations:count"
       true
     else
       false
     end
   end
 
-  def self.find(id)
-    equation_exists = $redis.sismember "equations", id
+  def self.exists?(id)
+    $redis.sismember "equations", id
+  end
 
-    if equation_exists
+  def self.find(id)
+    if exists? id
       equation = Equation.new
 
+      json = Zlib::Inflate.inflate $redis.get(id)
+
       equation.id     = id
-      equation.values = JSON.load $redis.get("equations:#{id}")
+      equation.values = JSON.load(json)
 
       equation
     else

@@ -1,0 +1,21 @@
+{
+  "name": "equat.io",
+  "version": "0.0.1",
+  "description": "equat.io ember application",
+  "main": "application.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start --single-run"
+  },
+  "author": "Nelson Darkwah Oppong",
+  "license": "MIT",
+  "devDependencies": {
+    "qunitjs": "^1.15.0",
+    "karma": "^0.12.25",
+    "karma-qunit": "^0.1.4",
+    "karma-ember-preprocessor": "^1.6.1",
+    "karma-phantomjs-launcher": "^0.1.4"
+  }
+}

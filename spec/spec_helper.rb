@@ -20,7 +20,7 @@ Dir["#{ROOT}/spec/support/*.rb"].each { |file| require file }
 
 RSpec.configure do |config|
   $redis = Redis.new(url: ENV["REDIS_URL"], logger: $logger)
-  $redis.client.db = 5
+  $redis.client.db = 2
   $redis.flushdb
-  config.after(:all) { $redis.flushall }
+  config.after(:all) { $redis.flushdb }
 end

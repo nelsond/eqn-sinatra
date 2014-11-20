@@ -1,24 +1,20 @@
-$visual-grid: false;
-$visual-grid-color: red;
-$visual-grid-opacity: 0.1;
-$grid-columns: 9;
-$max-width: 1024px;
+// neat defaults
+$grid-columns: 1;
 
 // transistitions
+$fast-transition: 0.1s ease-in-out;
 $default-transition: 0.2s ease-in-out;
 $slow-transition: 0.5s ease-in-out;
-$ultra-slow-transition: 1s ease-in-out;
 
 @import "reset";
 @import "bourbon/bourbon";
 @import "neat/neat";
 
 // break points
-$mobile: new-breakpoint(max-width 540px 4);
-$tablet: new-breakpoint(max-width 768px 6);
-$desktop: new-breakpoint(min-width 769px 9);
+$mobile: new-breakpoint(max-width 560px 1);
+$tablet: new-breakpoint(max-width 768px 1);
 
-@import url(http://fonts.googleapis.com/css?family=Ubuntu+Mono|Merriweather:400,400italic,700|Open+Sans:600);
+@import url(//fonts.googleapis.com/css?family=Ubuntu+Mono|Merriweather:400,400italic,700|Open+Sans:600);
 
 @mixin button {
   text-transform: uppercase;
@@ -28,21 +24,26 @@ $desktop: new-breakpoint(min-width 769px 9);
   cursor: pointer;
   border-radius: 3px;
   padding: 3px 9px;
-  background: black;
-  color: white;
+  background-color: lighten(black,85);
 
   &:active {
     color: white;
-    background: lighten(black,25);
+    background-color: black;
   }
+}
 
+@mixin source-code {
+  font-family: 'Ubuntu Mono', monospace;
+  font-size: 18px;
+  line-height: 1.25;
 }
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
   line-height: 1.25;
-  /*background: darken(white, 3);*/
+  min-width: 320px;
+  padding-top: 80px;
 }
 
 html, body { height: 100%; }
@@ -59,8 +60,8 @@ a {
 
     width: 6px;
     height: 6px;
-    margin: 2px 1px;
-    background-color: white;
+    margin: 2px;
+    background-color: black;
     border-radius: 100%;
     display: inline-block;
 
@@ -75,13 +76,14 @@ a {
   left: 50%;
   margin-left: -25px;
   margin-top: -13px;
-  width: 50px;
-  height: 26px;
+  padding: 1px 5px 3px 5px;
   border-radius: 3px;
   background: black;
   text-align: center;
 
-  span { margin: 10px 1px; }
+  span {
+    background-color: white;
+  }
 }
 
 @include keyframes(bouncedelay) {
@@ -89,20 +91,142 @@ a {
   40%           { opacity: 1; }
 }
 
+.clipboard-button {
+  width: 145px;
+
+  input {
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 18px;
+    display: inline-block;
+    color: inherit;
+    border: none;
+    border-bottom: 1px dotted lighten(black, 75);
+    padding: 3px 0 0 0;
+    width: 125px;
+
+    &:focus { outline: none; }
+  }
+
+  button {
+    @include user-select(none);
+
+    position: relative;
+    display: inline-block;
+    border: none;
+    background: none;
+    margin: 0 0 0 5px;
+    padding: 0;
+    color: inherit;
+
+    &.hidden { display: none; }
+
+    &:active, &:hover, &:focus {
+      border: none;
+      outline: none !important;
+    }
+
+    .tooltip {
+      @include transition($default-transition opacity);
+      @include user-select(none);
+
+      opacity: 0;
+      position: absolute;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      font-size: 12px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      left: 24px;
+      top: -1px;
+    }
+
+    &:hover, &.zeroclipboard-is-hover { .tooltip { opacity: 1; } }
+  }
+}
+
+.switch-container {
+  @include user-select(none);
+
+  cursor: pointer;
+  clear: both;
+
+  .on, .off {
+    @include transition(color $fast-transition);
+
+    vertical-align: middle;
+    color: lighten(black, 50);
+  }
+
+  &.on .on { color: black; }
+  &.off .off { color: black; }
+
+  .switch {
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    border-radius: 3px;
+    border: 2px solid black;
+    background: black;
+
+    .knob {
+      @include transition(margin-left $fast-transition);
+
+      width: 8px;
+      height: 10px;
+      background: white;
+      border-radius: 1px;
+    }
+  }
+  &.on .switch .knob { margin-left: 8px; }
+}
 
 #logo {
   font-family: 'Merriweather', serif;
   font-size: 20px;
+  vertical-align: middle;
+  color: black;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 38px;
+  padding-left: 50px;
+
+  span:last-child {
+    display: inline-block;
+    font-family: "Open Sans", sans-serif;
+    padding: 1px 4px;
+    font-size: 17px;
+    line-height: 16px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  @include media($mobile) {
+    height: 25px;
+    span { display: none !important; }
+  }
+}
+
+#logo, section#error {
+  background-image: url("/images/logo.svg?embed");
 }
 
 nav {
   @include clearfix;
+  @include linear-gradient(to top, rgba(242,242,242,0.85), rgba(242,242,242,1));
+  @include user-select(none);
 
-  background: darken(white, 5);
-  margin-bottom: 30px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 10;
   padding: 20px 5%;
   color: lighten(black, 25);
   min-height: 20px + 20px + 25px;
+  border-bottom: 1px solid darken(white, 10);
 
   #logo { float: left; }
 
@@ -110,7 +234,6 @@ nav {
     float: right;
 
     li {
-
       display: inline-block;
       margin: 0 5px;
 
@@ -118,11 +241,18 @@ nav {
         @include transition(opacity $default-transition);
 
         opacity: 0;
-
         &.visible { opacity: 1; }
       }
 
+      &.help a {
+        &, &:active {
+          background-color: transparent;
+          color: darken(white, 50);
+        }
+      }
+
       a { @include button; }
+
       &:last-child { margin-right: 0; }
       &:first-child { margin-left: 0; }
     }
@@ -136,7 +266,11 @@ section#error {
   left: 0;
   width: 100%;
   height: 100px;
-  margin-top: -50px;
+  margin-top: -100px;
+  background-repeat: no-repeat;
+  background-position: center top;
+  padding-top: 75px;
+  background-size: 75px;
 
   a { @include button; }
 
@@ -157,6 +291,7 @@ section#new {
 
   &::before {
     content: "Preview";
+    color: lighten(black, 75);
     text-transform: uppercase;
     font-size: 12px;
     font-weight: 600;
@@ -176,6 +311,7 @@ section#new {
 
   &::after {
     content: "Syntax";
+    color: lighten(black, 75);
     text-transform: uppercase;
     font-size: 12px;
     font-weight: 600;
@@ -207,10 +343,8 @@ section#new {
 
   textarea {
     @include transition(color $default-transition);
+    @include source-code;
 
-    font-family: 'Ubuntu Mono', monospace;
-    font-size: 18px;
-    line-height: 1.25;
     padding: 40px 0 0 0;
     padding-right: 10px;
     margin: 0;
@@ -229,8 +363,8 @@ section#new {
     width: 50%;
     position: relative;
     background: white;
-    padding: 4.5%;
-    border-left: 1px solid;
+    padding: 40px 4.5% 4.5% 4.5%;
+    border-left: 1px solid lighten(black,85);
     position: absolute;
     right: 0;
     height: 100%;
@@ -241,32 +375,80 @@ section#new {
       height: 50%;
       bottom: 0;
       border-left: none;
-      border-top: 1px solid;
+      border-top: 1px solid lighten(black, 75);
     }
-
   }
 }
 
 section#equation {
   width: 90%;
   max-width: 960px;
-  margin: 40px auto 20px;
+  margin: 50px auto 20px;
   background: white;
   padding-bottom: 4.5%;
   position: relative;
 
-  @include media($tablet) {
-    padding: 6.5% 0;
-  }
+  @include media($mobile) { margin-top: 20px; }
+  @include media($tablet) { padding-bottom: 6.5%; }
 
-  .info {
-    font-weight: 600;
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 12px;
-    text-transform: uppercase;
-    text-align: right;
+  &.help { margin-top: 10px; }
+}
+
+.info {
+  border-bottom: 1px solid darken(white, 10);
+  margin-bottom: 30px;
+  padding-bottom: 10px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(255,255,255,0.97);
+  padding-top: 10px;
+  top: 66px;
+
+  @include media($mobile) { position: static; }
+
+  .inner {
+    @include clearfix;
+
+    width: 90%;
+    max-width: 960px;
+    margin: 0 auto;
+
+
+    .clipboard-button {
+      width: 100%;
+    }
+
+    .url {
+      float: left;
+      margin-left: 10px;
+      border-left: 1px solid black;
+      padding-left: 10px;
+
+      @include media(new-breakpoint($mobile)) {
+        float: none;
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        clear: both;
+      }
+    }
+
+    .source {
+      float: right;
+      text-align: right;
+      width: 80px;
+    }
+
+    .meta {
+      float: left;
+      font-weight: 600;
+      line-height: 24px;
+      font-size: 12px;
+      line-height: 25px;
+      text-transform: uppercase;
+    }
   }
 }
 
@@ -274,9 +456,7 @@ section#equation {
   font-family: 'Merriweather', serif;
   font-size: 16px;
   line-height: 1.45;
-}
 
-.markdown {
   b, strong { font-weight: 600; }
 
   em { font-style: italic; }
@@ -287,6 +467,11 @@ section#equation {
     &:first-child { margin-top: 0; }
   }
 
+  hr {
+    border: none;
+    border-bottom: 1px solid black;
+    margin: 25px 0;
+  }
 
   h1,h2,h3,h4 {
     margin: 35px 0 10px 0;
@@ -325,6 +510,8 @@ section#equation {
     border-left: 3px solid;
     margin-left: 3px;
     padding: 10px 0 10px 20px;
+    max-width: 100%;
+    overflow-y: scroll;
   }
 
   a {
@@ -345,4 +532,42 @@ section#equation {
     margin: 25px 0;
     text-align: center;
   }
+}
+
+#flash {
+  @include transition(bottom $slow-transition);
+
+  position: absolute;
+  z-index: 10000;
+  left: 50%;
+  bottom: 0;
+  width: 320px;
+  margin-left: -160px;
+  border-radius: 3px 3px 0 0;
+  background: rgba(0,0,0,0.75);
+  color: darken(white,5);
+  text-align: center;
+  font-size: 16px;
+  padding: 10px 0;
+  opacity: 1;
+
+  &.hidden { bottom: -40px; }
+}
+
+pre.rainbow {
+  @include source-code;
+
+  white-space:      pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+
+  .bracket { color: lighten(black, 50); }
+  .command { color: #e90b16; }
+}
+
+@media print {
+  body { padding-top: 30px; }
+  nav { display: none; }
+  .info { display: none; }
 }

@@ -13,15 +13,23 @@ desc "Show application routes"
 task :routes do
   require "#{ROOT}/app"
 
-  Eqn.routes.each do |verb,handlers|
-    puts "\n#{verb}:\n"
+  Eqn.routes.each do |verb, handlers|
+    puts "#{verb}:\n"
     handlers.each do |handler|
       puts handler[0].source.to_s
     end
+    puts "\n"
   end
 end
 
-desc "Run ghetto autotest using kicker"
+desc "Ghetto autotest using kicker"
 task :autotest do
   system "kicker --recipe ignore --execute 'rspec --tag ~slow' --notification --clear"
+end
+
+namespace :js do
+  desc "Run karma"
+  task :karma do
+    system "cd #{ROOT}/assets/javascripts/ && ./node_modules/karma/bin/karma start"
+  end
 end

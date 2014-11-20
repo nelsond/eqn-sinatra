@@ -4,14 +4,12 @@ require "json"
 
 require "sinatra/json"
 require "sinatra/namespace"
-require "sinatra/assetpack"
 
 require "active_support"
 require "active_support/inflector"
 
 class Eqn < Sinatra::Base
   register Sinatra::Namespace
-  register Sinatra::AssetPack
 
   helpers Sinatra::JSON
 
@@ -19,8 +17,8 @@ class Eqn < Sinatra::Base
   enable :method_override
 
   set :root, File.dirname(__FILE__)
+  set :static_cache_control, [:public, max_age: 60*60*24*365]
   set :views, "#{ROOT}/views"
-  set :scss, { load_paths: [ "#{ROOT}/assets/stylesheets/" ] }
 
   # :nocov:
   configure :development do
@@ -34,44 +32,30 @@ class Eqn < Sinatra::Base
   end
   # :nocov:
 
-  assets do |a|
-    break if test?
+  configure :production do
+    before do
+      redirect("http://eqn.io#{request.path}") if request.host != "eqn.io"
+    end
+  end
 
-    a.serve "/js", from: "assets/javascripts"
-    a.serve "/css", from: "assets/stylesheets"
-    a.serve "/images", from: "assets/images"
+  configure do
+    require "digest"
 
-    a.js :app, [
-      "/js/lib/showdown.js",
-      "/js/lib/moment.js",
-      "/js/lib/handlebars-v1.1.0.js",
-      "/js/lib/ember.js",
-      "/js/lib/ember-data.js",
-      "/js/application.js",
-      "/js/components/*.js",
-      "/js/helpers.js",
-      "/js/models/*.js",
-      "/js/controllers/*.js",
-      "/js/router.js"
-    ]
+    asset_fingerprints = {}
 
-    a.css :app, [ "/css/application.css" ]
+    Dir["#{ROOT}/public/**/*.{css,js}"].each do |file|
+      asset_path = file.gsub(/^#{Regexp.escape("#{ROOT}/public/")}/, "")
+      asset_fingerprints[asset_path] = Digest::MD5.file(file).hexdigest[0..9]
+    end
 
-    a.js_compression :uglify
-    a.css_compression :sass
-
-    a.prebuild true
+    set :asset_fingerprints, asset_fingerprints
   end
 
   helpers do
-    def underscore(h)
-      h.keys.each do |k|
-        next if k.underscore == k
+    def asset_path(path)
+      path.gsub!(/\.(js|css)$/, '.min.\1') if settings.environment == :production
 
-        h[k.underscore] = h[k]
-        h.delete k
-      end
-      h
+      "/#{path}?#{settings.asset_fingerprints[path]}"
     end
   end
 
@@ -83,6 +67,10 @@ class Eqn < Sinatra::Base
 
         if equation
           status 200
+
+          last_modified Time.at(equation.values["created_at"])
+          etag equation.id
+
           json equation: equation.to_hash
         else
           status 404
@@ -91,7 +79,7 @@ class Eqn < Sinatra::Base
       end
 
       post "/?" do
-        equation = Equation.new underscore(params[:equation])
+        equation = Equation.new params[:equation]
 
         if equation.save
           status 200
@@ -105,8 +93,8 @@ class Eqn < Sinatra::Base
     end
   end
 
-  get "*" do
-    haml :index
+  get "/?:id?" do
+    erb :app
   end
 
 end

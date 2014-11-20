@@ -41,12 +41,22 @@ describe Equation do
       expect(equation.id).not_to eq(nil)
     end
 
-    #it "should not save an invalid Equation" do
-      #equation = Equation.new
-      #expect(equation.save).to eq(false)
+    it "should save an existing Equation with a new hash id" do
+      equation = Equation.new "code" => "$$Test Equation$$"
+      equation.save
 
-      #equation = Equation.new "invalid_key" => "Test"
-      #expect(equation.save).to eq(false)
-    #end
+      rev_equation = Equation.new "code" => "$$Test Equation$$"
+      rev_equation.save
+
+      expect(equation.id).not_to eq(rev_equation.id)
+    end
+
+    it "should not save an invalid Equation" do
+      equation = Equation.new
+      expect(equation.save).to eq(false)
+
+      equation = Equation.new "invalid_key" => "Test"
+      expect(equation.save).to eq(false)
+    end
   end
 end
