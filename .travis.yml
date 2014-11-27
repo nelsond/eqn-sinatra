@@ -1,11 +1,13 @@
 language: ruby
 rvm:
   - 2.1.2
-install:
+before_script:
   - uname -a
+install:
   - gem -v
   - gem install bundler -v '~> 1.7'
   - bundle install
-script: "bundle exec rspec"
+script:
+  - bundle exec rspec
 services:
   - redis-server
